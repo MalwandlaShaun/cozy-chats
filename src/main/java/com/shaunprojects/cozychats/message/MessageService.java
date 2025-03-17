@@ -2,6 +2,7 @@ package com.shaunprojects.cozychats.message;
 
 import com.shaunprojects.cozychats.chat.Chat;
 import com.shaunprojects.cozychats.chat.ChatRepository;
+import com.shaunprojects.cozychats.file.FileService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -18,6 +19,7 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final ChatRepository chatRepository;
     private final MessageMapper messageMapper;
+    private final FileService fileService;
 
 
 
@@ -65,7 +67,7 @@ public class MessageService {
         final String senderId = getSenderId(chat, authentication);
         final String receiverId = getRecipientId(chat,authentication);
 
-       // final String filePath = fileService.saveFile(file, senderId);
+       final String filePath = fileService.saveFile(file, senderId);
 
         Message message = new Message();
         message.setReceiverId(receiverId);
@@ -73,7 +75,7 @@ public class MessageService {
         message.setChat(chat);
         message.setType(MessageType.IMAGE);
         message.setState(MessageState.SENT);
-        // todo setMediaFilePath
+        message.setMediaFilePath(filePath);
         messageRepository.save(message);
 
         //todo notification
