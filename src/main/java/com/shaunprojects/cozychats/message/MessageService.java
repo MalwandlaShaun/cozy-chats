@@ -3,6 +3,9 @@ package com.shaunprojects.cozychats.message;
 import com.shaunprojects.cozychats.chat.Chat;
 import com.shaunprojects.cozychats.chat.ChatRepository;
 import com.shaunprojects.cozychats.file.FileService;
+import com.shaunprojects.cozychats.notification.Notification;
+import com.shaunprojects.cozychats.notification.NotificationService;
+import com.shaunprojects.cozychats.notification.NotificationType;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -20,7 +23,7 @@ public class MessageService {
     private final ChatRepository chatRepository;
     private final MessageMapper messageMapper;
     private final FileService fileService;
-
+    private final NotificationService notificationService;
 
 
     public void saveMessage(MessageRequest messageRequest){
@@ -37,7 +40,19 @@ public class MessageService {
 
         messageRepository.save(message);
 
-        //todo notification
+        Notification notification =  Notification.builder()
+                .chatId(chat.getId())
+                .messageType(messageRequest.getType())
+                .content(messageRequest.getContent())
+                .senderId(messageRequest.getSenderId())
+                .receiverId(messageRequest.getReceiverId())
+                .type(NotificationType.MESSAGE)
+                .chatName(chat.getChatName(message.getSenderId()))
+                .build();
+
+        notificationService.sendNotification(messageRequest.getReceiverId(), notification);
+
+
     }
 
     public List<MessageResponse> findChatMessages(String chatId){
@@ -57,7 +72,12 @@ public class MessageService {
 
         messageRepository.setMessagesToSeenByChatId(chatId, MessageState.SEEN);
 
-        //todo notification
+        Notification notification =  Notification.builder()
+                .chatId(chat.getId())
+                .senderId(getSenderId(chat, authentication))
+                .receiverId(recipientId)
+                .type(NotificationType.SEEN)
+                .build();
     }
 
     public void uploadMediaMessage(String chatId, MultipartFile file, Authentication authentication){
@@ -78,7 +98,13 @@ public class MessageService {
         message.setMediaFilePath(filePath);
         messageRepository.save(message);
 
-        //todo notification
+        Notification notification =  Notification.builder()
+                .chatId(chat.getId())
+                .messageType(MessageType.IMAGE)
+                .senderId(senderId)
+                .receiverId(receiverId)
+                .type(NotificationType.IMAGE)
+                .build();
     }
 
     private String getSenderId(Chat chat, Authentication authentication) {
