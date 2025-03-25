@@ -357,8 +357,8 @@
         "bearerFormat": "JWT",
         "flows": {
           "password": {
-            "authorizationUrl": "http://localhost:9090/realms/whatsapp-clone/protocol/openid-connect/auth",
-            "tokenUrl": "http://localhost:9090/realms/whatsapp-clone/protocol/openid-connect/token",
+            "authorizationUrl": "http://localhost:9090/realms/cozy-chats/protocol/openid-connect/auth",
+            "tokenUrl": "http://localhost:9090/realms/cozy-chats/protocol/openid-connect/token",
             "scopes": {}
           }
         }
